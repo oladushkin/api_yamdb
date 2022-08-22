@@ -5,7 +5,10 @@ from reviews.models import Category, Comment, Genre, Review, Title
 
 from .permissions import IsAdminUser
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer)
+                          GenreSerializer, ReviewSerializer, TitleSerializer)
+from .filters import TitleFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 
 
 class CategoryViewSet(mixins.ListModelMixin,
@@ -46,7 +49,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return TitleSerializer
-        return TitleCreateSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
