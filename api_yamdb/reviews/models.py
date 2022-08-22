@@ -2,52 +2,8 @@ from datetime import date
 
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.contrib.auth.base_user import AbstractBaseUser
 
-from .managers import CustomUserManager
-
-
-ROLES = [
-    ('user', 'Аутентифицированный пользователь'),
-    ('moderator', 'Модератор'), ('admin', 'Администратор'),
-    ('superuser', 'Суперюзер Django')
-]
-
-
-class CustomUser(AbstractBaseUser):
-    """Кастомная модель пользователя"""
-    username = models.CharField(max_length=150, unique=True,
-                                validators=[UnicodeUsernameValidator],)
-    email = models.EmailField(max_length=254, unique=True)
-    first_name = models.CharField(max_length=150, blank=True)
-    last_name = models.CharField(max_length=150, blank=True)
-    bio = models.TextField(blank=True)
-    role = models.CharField(
-        choices=ROLES, max_length=10, default='user'
-    )
-    is_admin = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-
-    objects = CustomUserManager()
-
-    def __str__(self):
-        return self.username
-
-    def has_perm(self, perm, obj=None):
-        return self.is_admin
-
-    def has_module_perms(self, app_label):
-        return self.is_admin
-
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'role']
-
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователь'
+from users.models import User
 
 
 class Category(models.Model):
@@ -115,10 +71,10 @@ class Title(models.Model):
 
 class Rating(models.Model):
     author = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name='review'
+        User, on_delete=models.CASCADE, related_name='rating'
     )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='review'
+        Title, on_delete=models.CASCADE, related_name='rating'
     )
     score = models.PositiveSmallIntegerField(
         [MaxValueValidator(10)],
@@ -138,10 +94,10 @@ class Review(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name='author'
+        User, on_delete=models.CASCADE, related_name='review'
     )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='title'
+        Title, on_delete=models.CASCADE, related_name='review'
     )
     score = models.ForeignKey(
         Rating, on_delete=models.SET_NULL,
@@ -152,7 +108,7 @@ class Review(models.Model):
 class Comment(models.Model):
     """Модель комментариев к обзорам"""
     author = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name='comments')
+        User, on_delete=models.CASCADE, related_name='comments')
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()

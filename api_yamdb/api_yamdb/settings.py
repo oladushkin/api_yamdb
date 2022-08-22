@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,9 +25,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'reviews',
+    'users',
 ]
-
-AUTH_USER_MODEL = 'reviews.CustomUser'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -106,3 +106,27 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
+
+AUTH_USER_MODEL = 'users.User'
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
+
+EMAIL_CODE = 'ConfCode@code.com'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+}

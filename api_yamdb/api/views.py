@@ -1,3 +1,11 @@
+from django.db.models import Avg
+from rest_framework import filters, mixins, viewsets
+
+from reviews.models import Category, Comment, Genre, Review, Title
+
+from .permissions import IsAdminUser
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ReviewSerializer)
 
 
 class CategoryViewSet(mixins.ListModelMixin,
@@ -7,7 +15,7 @@ class CategoryViewSet(mixins.ListModelMixin,
     """Класс представления категории."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [&&&]
+    permission_classes = [IsAdminUser, ]
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -20,7 +28,7 @@ class GenreViewSet(mixins.ListModelMixin,
     """Класс представления жанра."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = [&&&]
+    permission_classes = [IsAdminUser, ]
     filter_backends = (filters.SearchFilter,)
     search_fields = ('=name',)
     lookup_field = 'slug'
@@ -29,7 +37,7 @@ class GenreViewSet(mixins.ListModelMixin,
 class TitleViewSet(viewsets.ModelViewSet):
     """Класс представления произведения."""
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
-    permission_classes = (&&&)
+    permission_classes = [IsAdminUser, ]
     http_method_names = ['get', 'post', 'patch', 'delete']
     filter_backends = (OrderingFilter, DjangoFilterBackend)
     ordering = ('name',)
@@ -39,3 +47,15 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return TitleSerializer
         return TitleCreateSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+#    permission_classes = ()
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+#    permission_classes = ()
