@@ -20,6 +20,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
+    lookup_field = 'username'
 
     @action(
         detail=False,
