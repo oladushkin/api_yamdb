@@ -69,26 +69,6 @@ class Title(models.Model):
         return self.name[:15]
 
 
-class Rating(models.Model):
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='rating'
-    )
-    title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='rating'
-    )
-    score = models.PositiveSmallIntegerField(
-        [MaxValueValidator(10)],
-        null=True,
-        blank=True,
-    )
-
-    def __str__(self):
-        return self.score
-
-    class Meta:
-        unique_together = ('author', 'score', 'title')
-
-
 class Review(models.Model):
     """Модель обзорзоров на произведения"""
     text = models.TextField()
@@ -98,10 +78,6 @@ class Review(models.Model):
     )
     title = models.ForeignKey(
         Title, on_delete=models.CASCADE, related_name='review'
-    )
-    score = models.ForeignKey(
-        Rating, on_delete=models.SET_NULL,
-        null=True,
     )
 
 
