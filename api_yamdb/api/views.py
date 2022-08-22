@@ -49,7 +49,8 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return TitleSerializer
-
+        #return TitleSerializer
+       
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
