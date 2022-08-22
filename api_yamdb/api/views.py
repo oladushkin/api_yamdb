@@ -3,7 +3,7 @@ from rest_framework import filters, mixins, viewsets
 
 from reviews.models import Category, Comment, Genre, Review, Title
 
-from .permissions import IsAdminUser
+from .permissions import IsAdminUser, IsAuthenticated
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer)
 
@@ -36,7 +36,7 @@ class GenreViewSet(mixins.ListModelMixin,
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Класс представления произведения."""
-    queryset = Title.objects.annotate(rating=Avg('reviews__score'))
+    queryset = Title.objects.all()
     permission_classes = [IsAdminUser, ]
     http_method_names = ['get', 'post', 'patch', 'delete']
     filter_backends = (OrderingFilter, DjangoFilterBackend)
@@ -52,10 +52,10 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-#    permission_classes = ()
+    permission_classes = [IsAuthenticated, ]
 
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-#    permission_classes = ()
+    permission_classes = [IsAuthenticated, ]
