@@ -1,12 +1,11 @@
 from datetime import date
 
+from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import MaxValueValidator
 from django.db import models
-from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.contrib.auth.base_user import AbstractBaseUser
 
 from .managers import CustomUserManager
-
 
 ROLES = [
     ('user', 'Аутентифицированный пользователь'),
@@ -115,10 +114,10 @@ class Title(models.Model):
 
 class Rating(models.Model):
     author = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name='review'
+        CustomUser, on_delete=models.CASCADE, related_name='rating'
     )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='review'
+        Title, on_delete=models.CASCADE, related_name='rating'
     )
     score = models.PositiveSmallIntegerField(
         [MaxValueValidator(10)],
@@ -138,10 +137,10 @@ class Review(models.Model):
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
-        CustomUser, on_delete=models.CASCADE, related_name='author'
+        CustomUser, on_delete=models.CASCADE, related_name='review'
     )
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='title'
+        Title, on_delete=models.CASCADE, related_name='review'
     )
     score = models.ForeignKey(
         Rating, on_delete=models.SET_NULL,
