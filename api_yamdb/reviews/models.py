@@ -1,6 +1,6 @@
 from datetime import date
 
-from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 from users.models import User
@@ -46,6 +46,12 @@ class Title(models.Model):
         ],
         verbose_name='Год создания произведения'
     )
+    rating = models.ForeignKey(
+        'Review',
+        on_delete=models.SET_NULL,
+        blank=True, null=True,
+        related_name='titles'
+    )
     description = models.TextField(
         blank=True, max_length=200,
         verbose_name='Описание'
@@ -71,22 +77,64 @@ class Title(models.Model):
 
 class Review(models.Model):
     """Модель обзорзоров на произведения"""
-    text = models.TextField()
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='review'
     )
-    title = models.ForeignKey(
-        Title, on_delete=models.CASCADE, related_name='review'
+    text = models.TextField()
+    pub_date = models.DateTimeField(
+        'Дата публикации',
+        auto_now_add=True,
+        db_index=True
     )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='review'
+    )
+    score = models.IntegerField(
+        validators=(
+            MinValueValidator(1),
+            MaxValueValidator(10)
+        )
+    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='review'
+    )
+
+    class Meta:
+        verbose_name = 'Обзор'
+        verbose_name_plural = 'Обзоры'
+        ordering = ['pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'author'],
+                name='unique_review'
+            )
+        ]
 
 
 class Comment(models.Model):
     """Модель комментариев к обзорам"""
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments')
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
     text = models.TextField()
     created = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+        'Дата добавления',
+        auto_now_add=True,
+        db_index=True
+    )
+
+    class Meta:
+        verbose_name = 'Коментарий'
+        verbose_name_plural = 'Коментарии'
+        ordering = ['created']

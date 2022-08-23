@@ -41,7 +41,6 @@ class TitleViewSet(viewsets.ModelViewSet):
     """Класс представления произведения."""
     queryset = Title.objects.all()
     permission_classes = [IsAdminUser, ]
-    http_method_names = ['get', 'post', 'patch', 'delete']
     filter_backends = (OrderingFilter, DjangoFilterBackend)
     ordering = ('name',)
     filterset_class = TitleFilter
