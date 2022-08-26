@@ -18,6 +18,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = ('email', 'username')
 
+    def validate_username(self, value):
+        if value == 'me' or not value:
+            raise serializers.ValidationError(
+                'Имя пользователя не может быть "me"'
+            )
+        return value
+
 
 class TokenSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=150)

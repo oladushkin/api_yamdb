@@ -40,6 +40,7 @@ class TitleSerializer(serializers.ModelSerializer):
         many=True, slug_field='score',
         queryset=Review.objects.all()
     )
+
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')

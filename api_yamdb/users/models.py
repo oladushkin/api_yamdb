@@ -1,8 +1,7 @@
-from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from .managers import CustomUserManager
 
 ROLES = [
     ('user', 'Аутентифицированный пользователь'),
@@ -11,8 +10,12 @@ ROLES = [
 ]
 
 
-class User(AbstractBaseUser):
+class User(AbstractUser):
     """Кастомная модель пользователя"""
+    USER = 'user'
+    MODERATOR = 'moderator'
+    ADMIN = 'admin'
+
     username = models.CharField(max_length=150, unique=True,
                                 validators=[UnicodeUsernameValidator],)
     email = models.EmailField(max_length=254, unique=True)
@@ -23,25 +26,21 @@ class User(AbstractBaseUser):
         choices=ROLES, max_length=35, default='user'
     )
     confirmation_code = models.CharField(max_length=50, blank=True, null=True)
-    is_admin = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_superuser = models.BooleanField(default=False)
-
-    objects = CustomUserManager()
 
     def __str__(self):
         return self.username
 
-    def has_perm(self, perm, obj=None):
-        return self.is_admin
+    @property
+    def is_user(self):
+        return self.role == self.USER
 
-    def has_module_perms(self, app_label):
-        return self.is_admin
+    @property
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['email', 'role', 'confirmation_code']
-
-    class Meta:
-        verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователь'

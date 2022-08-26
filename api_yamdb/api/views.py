@@ -1,4 +1,3 @@
-from django.db.models import Avg
 from rest_framework import filters, mixins, viewsets
 
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -11,10 +10,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 
 
-class CategoryViewSet(mixins.ListModelMixin,
-                      mixins.CreateModelMixin,
-                      mixins.DestroyModelMixin,
-                      viewsets.GenericViewSet, ):
+class ListCreateDestroyViewSet(mixins.ListModelMixin,
+                               mixins.CreateModelMixin,
+                               mixins.DestroyModelMixin,
+                               viewsets.GenericViewSet):
+    pass
+
+
+class CategoryViewSet(ListCreateDestroyViewSet, viewsets.GenericViewSet):
     """Класс представления категории."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -24,10 +27,7 @@ class CategoryViewSet(mixins.ListModelMixin,
     lookup_field = 'slug'
 
 
-class GenreViewSet(mixins.ListModelMixin,
-                   mixins.CreateModelMixin,
-                   mixins.DestroyModelMixin,
-                   viewsets.GenericViewSet, ):
+class GenreViewSet(ListCreateDestroyViewSet, viewsets.GenericViewSet):
     """Класс представления жанра."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer

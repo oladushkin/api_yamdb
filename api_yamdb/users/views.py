@@ -25,18 +25,19 @@ class UsersViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['GET', 'PATCH'],
-        permission_classes=(IsAuthenticated, )
+        permission_classes=(IsAuthenticated,)
     )
     def me(self, request):
+        if request.method == 'GET':
+            serializer = self.get_serializer(request.user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         if request.method == 'PATCH':
-            serializer = UserSerializer(
+            serializer = self.get_serializer(
                 request.user, data=request.data, partial=True
             )
             serializer.is_valid(raise_exception=True)
             serializer.save(role=request.user.role)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        serializer = UserSerializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -66,7 +67,7 @@ def get_token(request):
     if serializer.is_valid():
         username = serializer.validated_data.get('username')
         confirmation_code = serializer.validated_data.get('confirmation_code')
-        user = User.objects.get(username=username)
+        user = get_object_or_404(User, username=username)
         if confirmation_code == user.confirmation_code:
             token = RefreshToken.for_user(user)
             token_data = {'token': str(token.access_token)}

@@ -8,10 +8,7 @@ class IsAdminUser(permissions.BasePermission):
             return True
         else:
             if request.user.is_authenticated:
-                return bool( 
-                    request.user.is_admin is True
-                    or request.user.is_superuser is True
-                )
+                return request.user.is_superuser or request.user.is_admin
 
 
 class IsAuthenticated(permissions.BasePermission):
@@ -22,17 +19,14 @@ class IsAuthenticated(permissions.BasePermission):
 
         else:
             if request.user.is_authenticated:
-                return bool( 
-                    request.user.is_admin is True
-                    or request.user.is_superuser is True
-                )
+                return request.user.is_superuser or request.user.is_admin
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        return bool(
+        return (
             obj.owner and request.user.is_authenticated
-            or request.user.is_admin is True
-            or request.user.is_superuser is True
+            or request.user.is_admin
+            or request.user.is_superuser
         )
