@@ -4,7 +4,7 @@ from reviews.models import Category, Comment, Genre, Review, Title
 
 from .permissions import IsAdminUser, IsAuthenticated
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer)
+                          GenreSerializer, ReviewSerializer, TitleSerializer, TitleCreateSerializer)
 from .filters import TitleFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
@@ -48,7 +48,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return TitleSerializer
-        #return TitleSerializer
+        return TitleCreateSerializer
        
 
 class ReviewViewSet(viewsets.ModelViewSet):

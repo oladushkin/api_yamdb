@@ -1,3 +1,5 @@
+from datetime import date
+
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -28,6 +30,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    """Сериализатор произведения для получения экземпляра или списка."""
     genre = serializers.SlugRelatedField(
         many=True, slug_field='slug',
         queryset=Genre.objects.all()
@@ -44,6 +47,27 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор создания экземпляра произведения."""
+    genre = serializers.SlugRelatedField(many=True, write_only=True,
+                                         slug_field='slug', required=False,
+                                         queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(many=False, write_only=True,
+                                            slug_field='slug', required=False,
+                                            queryset=Category.objects.all())
+
+    class Meta:
+        model = Title
+        fields = ('id', 'name', 'year', 'description', 'genre', 'category')
+
+    def validate_year(self, value):
+        if not 0 < value < date.today().year:
+            raise serializers.ValidationError(
+                'Нельзя добавлять произведения, которые еще не вышли!'
+            )
+        return value
 
 
 class ReviewSerializer(serializers.ModelSerializer):

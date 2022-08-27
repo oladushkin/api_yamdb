@@ -75,6 +75,27 @@ class Title(models.Model):
         return self.name[:15]
 
 
+class TitleGenre(models.Model):
+    """Модель создания связи между произведениями и их жанрами."""
+
+    genre = models.ForeignKey(
+        Genre,
+        on_delete=models.CASCADE
+    )
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['title', 'genre'],
+                name='unique_genre_for_a_title'
+            )
+        ]
+
+
 class Review(models.Model):
     """Модель обзорзоров на произведения"""
     author = models.ForeignKey(
