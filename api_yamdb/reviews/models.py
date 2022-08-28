@@ -98,9 +98,6 @@ class TitleGenre(models.Model):
 
 class Review(models.Model):
     """Модель обзорзоров на произведения"""
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='review'
-    )
     text = models.TextField()
     pub_date = models.DateTimeField(
         'Дата публикации',
@@ -118,7 +115,7 @@ class Review(models.Model):
             MaxValueValidator(10)
         )
     )
-    title = models.ForeignKey(
+    title_id = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='review'
@@ -130,7 +127,7 @@ class Review(models.Model):
         ordering = ['pub_date']
         constraints = [
             models.UniqueConstraint(
-                fields=['title', 'author'],
+                fields=['title_id', 'author'],
                 name='unique_review'
             )
         ]
@@ -143,7 +140,7 @@ class Comment(models.Model):
         on_delete=models.CASCADE,
         related_name='comments'
     )
-    review = models.ForeignKey(
+    review_id = models.ForeignKey(
         Review,
         on_delete=models.CASCADE,
         related_name='comments'
