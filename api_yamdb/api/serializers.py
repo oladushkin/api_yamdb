@@ -74,6 +74,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    
     title_id = serializers.SlugRelatedField(
         many=False,
         slug_field='id',
