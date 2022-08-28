@@ -98,9 +98,6 @@ class TitleGenre(models.Model):
 
 class Review(models.Model):
     """Модель обзорзоров на произведения"""
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='review'
-    )
     text = models.TextField()
     pub_date = models.DateTimeField(
         'Дата публикации',
