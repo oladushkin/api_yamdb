@@ -1,7 +1,7 @@
 from rest_framework import filters, mixins, viewsets
-
+from django.shortcuts import get_object_or_404
 from reviews.models import Category, Comment, Genre, Review, Title
-
+from rest_framework.pagination import LimitOffsetPagination
 from .permissions import IsAdminUser, IsAuthenticated
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ReviewSerializer, TitleSerializer, TitleCreateSerializer)
@@ -22,6 +22,7 @@ class CategoryViewSet(ListCreateDestroyViewSet, viewsets.GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminUser, ]
+    pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -32,6 +33,7 @@ class GenreViewSet(ListCreateDestroyViewSet, viewsets.GenericViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsAdminUser, ]
+    pagination_class = LimitOffsetPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('=name',)
     lookup_field = 'slug'
@@ -42,8 +44,9 @@ class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = [IsAdminUser, ]
     filter_backends = (OrderingFilter, DjangoFilterBackend)
-    ordering = ('name',)
+    ordering = ('year',)
     filterset_class = TitleFilter
+    pagination_class = LimitOffsetPagination
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -59,6 +62,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def get_queryset(self):
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        return title.review.all()
+
+
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -66,3 +74,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    def get_queryset(self):
+        review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+        return review.comments.all()

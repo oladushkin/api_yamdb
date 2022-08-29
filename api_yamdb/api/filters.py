@@ -4,9 +4,12 @@ from reviews.models import Title
 
 
 class TitleFilter(django_filters.FilterSet):
-
     name = django_filters.CharFilter(
         field_name='name',
+        lookup_expr='icontains'
+    )
+    year = django_filters.CharFilter(
+        field_name='year',
         lookup_expr='icontains'
     )
     category = django_filters.CharFilter(
@@ -23,6 +26,7 @@ class TitleFilter(django_filters.FilterSet):
         model = Title
         fields = (
             'name',
+            'year',
             'category',
             'genre'
         )

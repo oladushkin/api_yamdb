@@ -29,14 +29,8 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор произведения для получения экземпляра или списка."""
-    genre = serializers.SlugRelatedField(
-        many=True, slug_field='slug',
-        queryset=Genre.objects.all()
-    )
-    category = serializers.SlugRelatedField(
-        slug_field='slug',
-        queryset=Category.objects.all()
-    )
+    genre = GenreSerializer(read_only=True, many=True)
+    category = CategorySerializer(read_only=True)
     rating = serializers.SlugRelatedField(
         many=True, slug_field='score',
         queryset=Review.objects.all()
@@ -75,15 +69,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         queryset=User.objects.all()
     )
     
-    title_id = serializers.SlugRelatedField(
-        many=False,
-        slug_field='id',
+    title_id = serializers.PrimaryKeyRelatedField(
         queryset=Title.objects.all()
     )
     class Meta:
         model = Review
         fields = ('id', 'text', 'score', 'author', 'title_id', 'pub_date')
-        read_only_fields = ('id', 'author', 'title_id', )
+#        read_only_fields = ('id', 'author', 'title_id', )
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -92,8 +84,11 @@ class CommentSerializer(serializers.ModelSerializer):
         slug_field='username',
         queryset=User.objects.all()
     )
+    review_id = serializers.PrimaryKeyRelatedField(
+        queryset=Review.objects.all()
+    )
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'author', 'pub_date')
-        read_only_fields = ('id', 'author', )
+        fields = ('id', 'text', 'author', 'review_id', 'pub_date')
+        read_only_fields = ('id', )

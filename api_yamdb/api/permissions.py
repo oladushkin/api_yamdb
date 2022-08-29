@@ -8,7 +8,7 @@ class IsAdminUser(permissions.BasePermission):
             return True
         else:
             if request.user.is_authenticated:
-                return request.user.is_superuser or request.user.is_admin
+                return request.user.is_admin
 
 
 class IsAuthenticated(permissions.BasePermission):
