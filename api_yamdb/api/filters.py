@@ -21,7 +21,6 @@ class TitleFilter(django_filters.FilterSet):
         lookup_expr='icontains'
     )
 
-
     class Meta:
         model = Title
         fields = (

@@ -115,16 +115,22 @@ class Review(models.Model):
             MaxValueValidator(10)
         )
     )
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
-        related_name='review'
+        related_name='review',
+        null=False
     )
 
     class Meta:
         verbose_name = 'Обзор'
         verbose_name_plural = 'Обзоры'
         ordering = ['pub_date']
+        constraints = [
+            models.UniqueConstraint(
+                fields=('title', 'author'),
+                name='unique_review',)
+        ]
 
 
 class Comment(models.Model):
@@ -140,7 +146,7 @@ class Comment(models.Model):
         related_name='comments'
     )
     text = models.TextField()
-    created = models.DateTimeField(
+    pub_date = models.DateTimeField(
         'Дата добавления',
         auto_now_add=True,
         db_index=True
@@ -149,4 +155,4 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Коментарий'
         verbose_name_plural = 'Коментарии'
-        ordering = ['created']
+        ordering = ['pub_date']

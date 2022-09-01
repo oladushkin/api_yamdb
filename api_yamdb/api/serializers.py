@@ -1,7 +1,8 @@
 from datetime import date
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title
-from users.models import User
+from django.shortcuts import get_object_or_404
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор категории."""
@@ -31,9 +32,8 @@ class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор произведения для получения экземпляра или списка."""
     genre = GenreSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.SlugRelatedField(
-        many=True, slug_field='score',
-        queryset=Review.objects.all()
+    rating = serializers.IntegerField( 
+        source='review__score__avg', read_only=True
     )
 
     class Meta:
@@ -63,24 +63,37 @@ class TitleCreateSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username'
+    )
 
     class Meta:
         model = Review
         fields = ('id', 'text', 'score', 'author', 'pub_date')
-        read_only_fields = ('id',)
+        read_only_fields = ('id', )
 
+    def validate(self, data):
+        request = self.context['request']
+        author = request.user
+        title = get_object_or_404(
+            Title,
+            pk=self.context.get('view').kwargs.get('title_id')
+        )
+        if (request.method == 'POST'
+           and Review.objects.filter(title=title, author=author).exists()):
+            raise ValidationError(
+                {'title': 'Может существовать только один отзыв'}
+            )
+        return data
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        many=False,
-        slug_field='username',
-        queryset=User.objects.all()
-    )
-    review_id = serializers.PrimaryKeyRelatedField(
-        queryset=Review.objects.all()
+        read_only=True,
+        slug_field='username'
     )
 
     class Meta:
         model = Comment
-        fields = ('id', 'text', 'author', 'review_id', 'pub_date')
+        fields = ('id', 'text', 'author', 'pub_date')
         read_only_fields = ('id', )
