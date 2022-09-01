@@ -1,8 +1,11 @@
 from datetime import date
+
 from django.core.exceptions import ValidationError
-from rest_framework import serializers
-from reviews.models import Category, Comment, Genre, Review, Title
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+
+from reviews.models import Category, Comment, Genre, Review, Title
+
 
 class CategorySerializer(serializers.ModelSerializer):
     """Сериализатор категории."""
@@ -32,13 +35,21 @@ class TitleSerializer(serializers.ModelSerializer):
     """Сериализатор произведения для получения экземпляра или списка."""
     genre = GenreSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.IntegerField( 
+    rating = serializers.IntegerField(
         source='review__score__avg', read_only=True
     )
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category')
+        fields = (
+            'id',
+            'name',
+            'year',
+            'rating',
+            'description',
+            'genre',
+            'category'
+        )
 
 
 class TitleCreateSerializer(serializers.ModelSerializer):
@@ -86,6 +97,7 @@ class ReviewSerializer(serializers.ModelSerializer):
                 {'title': 'Может существовать только один отзыв'}
             )
         return data
+
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(

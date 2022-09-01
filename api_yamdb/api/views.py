@@ -1,15 +1,17 @@
-from rest_framework import filters, mixins, viewsets
-from django.shortcuts import get_object_or_404
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, mixins, viewsets
+from rest_framework.filters import OrderingFilter
+from rest_framework.pagination import LimitOffsetPagination
+
 from reviews.models import Category, Comment, Genre, Review, Title
-from rest_framework.pagination import LimitOffsetPagination, PageNumberPagination
+
+from .filters import TitleFilter
 from .permissions import IsAdminUser, IsAuthenticated
 from .serializers import (CategorySerializer, CommentSerializer,
-                          GenreSerializer, ReviewSerializer, TitleSerializer, TitleCreateSerializer)
-from.pagination import ReviewPagination
-from .filters import TitleFilter
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter
+                          GenreSerializer, ReviewSerializer,
+                          TitleCreateSerializer, TitleSerializer)
 
 
 class ListCreateDestroyViewSet(mixins.ListModelMixin,
@@ -43,9 +45,9 @@ class GenreViewSet(ListCreateDestroyViewSet, viewsets.GenericViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Класс представления произведения."""
-    queryset = Title.objects.all().annotate( 
-        Avg('review__score') 
-    ) 
+    queryset = Title.objects.all().annotate(
+        Avg('review__score')
+    )
     permission_classes = [IsAdminUser, ]
     filter_backends = (OrderingFilter, DjangoFilterBackend)
     ordering = ('year',)
@@ -56,7 +58,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return TitleSerializer
         return TitleCreateSerializer
-       
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
@@ -71,6 +73,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         titles = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         return titles.review.all()
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
