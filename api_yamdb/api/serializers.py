@@ -14,10 +14,6 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ('name', 'slug')
 
-    def create(self, validated_data):
-        category = Category.objects.create(**validated_data)
-        return category
-
 
 class GenreSerializer(serializers.ModelSerializer):
     """Сериализатор жанра."""
@@ -25,10 +21,6 @@ class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
         fields = ('name', 'slug')
-
-    def create(self, validated_data):
-        genre = Genre.objects.create(**validated_data)
-        return genre
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -54,12 +46,20 @@ class TitleSerializer(serializers.ModelSerializer):
 
 class TitleCreateSerializer(serializers.ModelSerializer):
     """Сериализатор создания экземпляра произведения."""
-    genre = serializers.SlugRelatedField(many=True, write_only=True,
-                                         slug_field='slug', required=False,
-                                         queryset=Genre.objects.all())
-    category = serializers.SlugRelatedField(many=False, write_only=True,
-                                            slug_field='slug', required=False,
-                                            queryset=Category.objects.all())
+    genre = serializers.SlugRelatedField(
+        many=True,
+        write_only=True,
+        slug_field='slug',
+        required=False,
+        queryset=Genre.objects.all()
+    )
+    category = serializers.SlugRelatedField(
+        many=False,
+        write_only=True,
+        slug_field='slug',
+        required=False,
+        queryset=Category.objects.all()
+    )
 
     class Meta:
         model = Title

@@ -24,7 +24,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 
     @action(
         detail=False,
-        methods=['GET', 'PATCH'],
+        methods=('GET', 'PATCH'),
         permission_classes=(IsAuthenticated,)
     )
     def me(self, request):
@@ -43,7 +43,7 @@ class UsersViewSet(viewsets.ModelViewSet):
 @api_view(['POST'])
 def user_registration(request):
     serializer = RegistrationSerializer(data=request.data)
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         serializer.save()
         username = request.data.get('username')
         user = get_object_or_404(User, username=username)
@@ -58,7 +58,6 @@ def user_registration(request):
         )
         user.save()
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
